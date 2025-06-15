@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from sklearn.ensemble import RandomForestClassifier, IsolationForest
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor, IsolationForest
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import StandardScaler
 from datetime import datetime, timedelta
@@ -17,6 +17,12 @@ class AIDecisionEngine:
         self.fraud_sensitivity = 0.7
         self.restock_threshold = 0.2
         self.expiry_warning_days = 30
+        self.restock_rules = {
+            'critical_threshold': 0.1,  # 10% of max stock
+            'normal_threshold': 0.2,    # 20% of max stock
+            'lead_time_buffer': 1.5,    # 50% buffer for lead time
+            'seasonal_multiplier': 1.2   # 20% increase for seasonal demand
+        }
         
     def configure(self, fraud_sensitivity: float, restock_threshold: float, expiry_warning_days: int):
         """Configure AI model parameters."""
@@ -91,8 +97,8 @@ class AIDecisionEngine:
         base_demand = 100 + seasonal_factor * 50 + trend * 20 + noise * 10
         
         # Additional features
-        day_of_week = pd.to_datetime(dates).dayofweek
-        month = pd.to_datetime(dates).month
+        day_of_week = [d.weekday() for d in dates]
+        month = [d.month for d in dates]
         
         data = {
             'date': dates,
@@ -136,7 +142,7 @@ class AIDecisionEngine:
         X = training_data[features].fillna(0)
         y = training_data['demand']
         
-        self.demand_model = RandomForestClassifier(
+        self.demand_model = RandomForestRegressor(
             n_estimators=100,
             max_depth=15,
             random_state=42
