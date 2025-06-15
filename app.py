@@ -305,11 +305,21 @@ def display_ai_decisions(data):
         st.plotly_chart(fig, use_container_width=True)
     
     with col2:
-        fig = px.gauge(
-            value=rules_data['overall_efficiency'],
-            title="Rules Engine Efficiency",
-            range_color="green"
-        )
+        fig = go.Figure(go.Indicator(
+            mode = "gauge+number",
+            value = rules_data['overall_efficiency'],
+            domain = {'x': [0, 1], 'y': [0, 1]},
+            title = {'text': "Rules Engine Efficiency"},
+            gauge = {
+                'axis': {'range': [None, 100]},
+                'bar': {'color': "darkblue"},
+                'steps': [
+                    {'range': [0, 50], 'color': "lightgray"},
+                    {'range': [50, 80], 'color': "gray"}],
+                'threshold': {
+                    'line': {'color': "red", 'width': 4},
+                    'thickness': 0.75,
+                    'value': 90}}))
         st.plotly_chart(fig, use_container_width=True)
     
     with col3:
