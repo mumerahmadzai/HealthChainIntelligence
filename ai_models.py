@@ -131,7 +131,6 @@ class AIDecisionEngine:
         
         # Also train isolation forest for anomaly detection
         self.anomaly_model = IsolationForest(
-            contamination=0.1,
             random_state=42
         )
         self.anomaly_model.fit(X_scaled[y == 0])  # Train only on normal data
